@@ -1,20 +1,12 @@
-def access_nested_map(nested_map, path):
-    try:
-        for key in path:
-            nested_map = nested_map[key]
-        return nested_map
-    except KeyError as e:
-        key = path[len(path) - 1]
-        raise KeyError(f"Key '{key}' not found in the nested map") from e
-    except (TypeError, IndexError):
-        return "as expected"
-    
-def memoize(func):
-    cache = {}
+#!/usr/bin/env python3
+"""Utils module."""
 
-    def wrapper(*args, **kwargs):
-        key = (args, frozenset(kwargs.items()))
-        if key not in cache:
-            cache[key] = func(*args, **kwargs)
-        return cache[key]
-    return wrapper
+import requests
+from typing import Any, Dict
+
+
+def get_json(url: str) -> Dict[str, Any]:
+    """Make a GET request to the URL and return the JSON response."""
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
