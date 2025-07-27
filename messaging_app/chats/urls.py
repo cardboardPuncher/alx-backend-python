@@ -1,17 +1,25 @@
+from rest_framework import routers
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from rest_framework_nested.routers import NestedDefaultRouter
-from . import views
+from chats.views import (
+    MessageViewSet, ConversationViewSet, get_token,
+    UserViewSet, log_out)
 
-# Base router for conversations
-router = DefaultRouter()
-router.register(r'conversations', views.ConversationViewSet, basename='conversation')
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView
+)
 
-# Nested router for messages under conversations
-conversations_router = NestedDefaultRouter(router, r'conversations', lookup='conversation')
-conversations_router.register(r'messages', views.MessageViewSet, basename='message')
+
+
+NestedDefaultRouter = routers.DefaultRouter()
+NestedDefaultRouter.register(r'messages', MessageViewSet, basename='messages')
+NestedDefaultRouter.register(r'conversations', ConversationViewSet, basename='conversations')
+NestedDefaultRouter.register(r'users', UserViewSet, basename='users')
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('', include(conversations_router.urls)),
+    path('', include(NestedDefaultRouter.urls)),
+    path('get_token/', get_token, name='get-token'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/', log_out, name='log_out')
 ]
