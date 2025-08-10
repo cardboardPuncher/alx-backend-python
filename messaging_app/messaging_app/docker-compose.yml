@@ -1,0 +1,45 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/messaging_app
+      - ./secrets/secret_key.txt:/run/secrets/secret_key:ro
+      - ./secrets/db_password.txt:/run/secrets/db_password:ro
+    image: django:messaging_app
+    container_name: django_messaging_app
+    depends_on:
+      - db 
+    environment:
+      DB_PASSWORD: /run/secrets/db_password
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      DEBUG: True
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN}
+      SECRET_KEY: /run/secrets/secret_key
+    command: python3 manage.py runserver 0.0.0.0:8000
+  db:
+    image: mysql:latest
+    volumes:
+      - ./db_data:/var/lib/mysql
+      # - ./secrets/db_password.txt:/run/secrets/db_password:ro
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      # MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      # MYSQL_DATABASE: chatty
+      # MYSQL_USER: admin
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    container_name: mysql_db 
+    healthcheck:
+      test: ["CMD", "admin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data: 

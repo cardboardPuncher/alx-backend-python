@@ -83,10 +83,14 @@ WSGI_APPLICATION = 'messaging_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default':env.db_url('DB_DEV')
-}
+# DATABASES = {
+    # 'default':env.db_url('DB_PROD')
+# }
 
+password = env('DB_PASSWORD')
+DATABASE = {
+    'default': f'mysql://admin:{password}@db:3306/chatty'
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
